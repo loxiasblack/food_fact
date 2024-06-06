@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Nutriment Tracker</title>
+</head>
+<body>
+    {%if user.is_authenticated%}
+        <h1> Hi, {{ user.username }} <h1>
+        <a href="{% url 'logout' %}"><h2>logout</h2></a>
+    {%else%}
+        <h1>You are not logged in<h1>
+    {%endif%}
+    <h1>Nutriment Tracker</h1>
+
+    <h2>Add a new nutriment</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Save</button>
+    </form>
+
+
+    <h2>Total Calories: {{ total_calories }} cal </h2>
+    <h2>Daily Nutriments</h2>
+    <ul>
+        {% for day in daily_totals %}
+            <li>Date: {{ day.date }} - Total Calories: {{ day.total_calories }} cal</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

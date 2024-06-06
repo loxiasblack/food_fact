@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Food Information</title>
+    </head>
+    <body>
+        {%if user.is_authenticated%}
+            <h1> Hi, {{ user.username }} <h1>
+            <a href="{% url 'logout' %}"><h2>logout</h2></a>
+        {%else%}
+            <h1>You are not logged in<h1>
+        {%endif%}
+        <h1>Food Information</h1>
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">Get Info</button>
+        </form>
+
+    {% if food_info %}
+    <h2>Results:</h2>
+    <ul>
+    {% for item in food_info %}
+        <li>Name: {{ item.name }}</li>
+        <li>Calories: {{ item.calories }}</li>
+        <li>Protein: {{ item.protein_g }}g</li>
+        <li>Carbohydrates: {{ item.carbohydrates_total_g }}g</li>
+        <li>Fat: {{ item.fat_total_g }}g</li>
+        <li>Potassium: {{ item.potassium_mg }}g</li>
+        <li>Cholesterol: {{ item.cholesterol_mg }}g</li>
+        <li>Fiber: {{ item.fiber_g }}g</li>
+        <li>Sugar: {{ item.sugar_g }}g</li>
+    {% endfor %}
+    </ul>
+    {% endif %}
+    <a href="{% url 'nutriment_info'%}"><h2>get your daily Calories count here</h2><a>
+    </body>
+</html>
