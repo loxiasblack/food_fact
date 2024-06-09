@@ -10,14 +10,16 @@ from .forms import FoodForm
 from .forms import NutrimentForm
 from .models import Nutriment
 from django.db.models import Sum
+from django.utils import timezone
 import requests
 
 # Create your views here.
+
 def home(request):
     return render(request, 'users/index.html')
 
 def login_page(request):
-    
+    """login page via request method 'POST'"""
     if request.method == 'POST':
         username = request.POST.get('username')
         password = request.POST.get('password')
@@ -50,11 +52,13 @@ def register_page(request):
         username = request.POST.get('username')
         password = request.POST.get('password')
         
+        # Filter user by the username enter in the POST
         user = User.objects.filter(username=username)
         if user.exists():
             messages.info(request, "Username already taken!")
             return redirect('/users/register/')
         
+        #Create user in within the builtin class
         user = User.objects.create_user(
             first_name=first_name,
             last_name=last_name,
@@ -71,18 +75,20 @@ def register_page(request):
 
 
 def courses(request):
+    '''nothing but just test'''
     return render (request, 'users/courses.html')
 
 def index(request):
     return render (request, 'users/index.html')
 
 def food_info_views(request):
+    '''view to display some nutrition information'''
     food_info = None
     if request.method == 'POST':
-        form = FoodForm(request.POST)
+        form = FoodForm(request.POST)  # create a form (class)  with the POST request
         if form.is_valid():
-            food_item = form.cleaned_data['food_item']
-            food_info = get_food_info(food_item)
+            food_item = form.cleaned_data['food_item'] #clean the data entered by the user
+            food_info = get_food_info(food_item) #Fecth information from NINJA API
     else:
         form = FoodForm()
     
@@ -96,14 +102,27 @@ API_NINJAS_HEADERS = {
 
 
 def fetch_calories(food_name, grams):
+    """counting view --- count your calories per day and display the history"""
     try:
         response = requests.get(API_NINJAS_URL, headers=API_NINJAS_HEADERS, params={'query': food_name})
         response.raise_for_status()
         response_data = response.json()
 
         if response_data:
+            # Get the count for food information
+            calories_and_macros = []
             calories_per_100g = response_data[0].get('calories', 0)
+            Protein_per_100g = response_data[0].get('protein_g', 0)
+            fat_per_100g = response_data[0].get('fat_total_g', 0)
+            carbohydrates_per_100g = response_data[0].get('carbohydrates_total_g', 0)
             calories = (calories_per_100g * grams) / 100
+            calories_and_macros.append(calories)
+            fats = (fat_per_100g * grams) / 100
+            calories_and_macros.append(fats)
+            protein = (Protein_per_100g * grams) / 100
+            calories_and_macros.append(protein)
+            carbs = (carbohydrates_per_100g * grams) / 100
+            calories_and_macros.append(carbs)
             return calories
     except (requests.RequestException, IndexError, KeyError) as e:
         print(f"Error fetching calories: {e}")
@@ -112,9 +131,12 @@ def fetch_calories(food_name, grams):
 # Create your views here
 @login_required
 def nutriment_list(request):
-    nutriments = Nutriment.objects.filter(user=request.user)
-    daily_totals = nutriments.values('date').annotate(total_calories=Sum('calories')).order_by('-date')
-    total_calories = sum(n.calories for n in nutriments)
+    today = timezone.now().date()
+    
+    nutriments = Nutriment.objects.filter(user=request.user) # filter the request by only user information
+    today_nutriments = nutriments.filter(date=today)
+    daily_totals = nutriments.values('date').annotate(total_calories=Sum('calories')).order_by('-date') # get your food information only by your day 
+    total_calories = sum(n.calories for n in today_nutriments) #sum the calories in today nutriments
 
     if request.method == "POST":
         form = NutrimentForm(request.POST)
@@ -135,7 +157,7 @@ def nutriment_list(request):
         'total_calories': total_calories,
         'form': form
     }
-    return render(request, 'users/Nutirment.html', context)
+    return render(request, 'users/Nutriment.html', context)
 
 
 
