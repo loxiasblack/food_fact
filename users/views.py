@@ -86,7 +86,7 @@ def food_info_views(request):
     else:
         form = FoodForm()
     
-    return render(request, 'users/food_info.html', {'form': form, 'food_info': food_info})
+    return render(request, 'users/courses.html', {'form': form, 'food_info': food_info})
 
 
 API_NINJAS_URL = 'https://api.api-ninjas.com/v1/nutrition'
@@ -135,7 +135,7 @@ def nutriment_list(request):
         'total_calories': total_calories,
         'form': form
     }
-    return render(request, 'users/nutriment_list.html', context)
+    return render(request, 'users/Nutirment.html', context)
 
 
 

@@ -5,12 +5,6 @@
     <title>Nutriment Tracker</title>
 </head>
 <body>
-    {%if user.is_authenticated%}
-        <h1> Hi, {{ user.username }} <h1>
-        <a href="{% url 'logout' %}"><h2>logout</h2></a>
-    {%else%}
-        <h1>You are not logged in<h1>
-    {%endif%}
     <h1>Nutriment Tracker</h1>
 
     <h2>Add a new nutriment</h2>

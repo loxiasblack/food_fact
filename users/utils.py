@@ -13,10 +13,10 @@ def get_food_info_admin(food_item):
         data =  response.json()
         if data:
             food_data = data[0]
-            food_item.calories = food_data.get('calories')
-            food_item.protein = food_data.get('protein_g')
-            food_item.carbohydrates = food_data.get('carbohydrates_total_g')
-            food_item.fat = food_data.get('fat_total_g')
+            food_item.calories = food_data[0].get('calories')
+            food_item.protein = food_data[0].get('protein_g')
+            food_item.carbohydrates = food_data[0].get('carbohydrates_total_g')
+            food_item.fat = food_data[0].get('fat_total_g')
             food_item.save()
             return True
     else:
