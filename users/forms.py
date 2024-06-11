@@ -10,7 +10,7 @@ class FoodForm(forms.Form):
         )
 
 #Nutriment Information for the count 
-class NutrimentForm(forms.ModelForm):
+class NutrimentForm(forms.ModelForm): #ModelForm that is automatically created from django
     date = forms.DateField(
         widget=forms.DateInput(attrs={'type': 'date','class': 'input-date'}),
         initial=forms.DateField().initial or None

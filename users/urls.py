@@ -15,6 +15,7 @@ urlpatterns = [
     path('index/', views.index, name="index"),
     path('food_info/',views.food_info_views, name="food_info"),
     path('count/', views.nutriment_list, name="nutriment_info"),
+    path('dashbord/', views.index_dash, name="dashborad"),
 ]
 
 

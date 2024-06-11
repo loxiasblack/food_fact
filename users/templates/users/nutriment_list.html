@@ -16,7 +16,10 @@
 
 
     <h2>Total Calories: {{ total_calories }} cal </h2>
-    <h2>Daily Nutriments</h2>
+    <h2>Total Protein: {{ total_protein }} g </h2>
+    <h2>Total Fat: {{ total_fat }} g </h2>
+    <h2>Total Carbs: {{ total_carbs }} g </h2>
+    <h2>Daily Nutriments Calories</h2>
     <ul>
         {% for day in daily_totals %}
             <li>Date: {{ day.date }} - Total Calories: {{ day.total_calories }} cal</li>

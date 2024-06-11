@@ -109,24 +109,34 @@ def fetch_calories(food_name, grams):
         response_data = response.json()
 
         if response_data:
-            # Get the count for food information
-            calories_and_macros = []
+            
+            #take the food info from api
             calories_per_100g = response_data[0].get('calories', 0)
             Protein_per_100g = response_data[0].get('protein_g', 0)
             fat_per_100g = response_data[0].get('fat_total_g', 0)
             carbohydrates_per_100g = response_data[0].get('carbohydrates_total_g', 0)
+            
+            #get the count depends en the grams take by the user
             calories = (calories_per_100g * grams) / 100
-            calories_and_macros.append(calories)
-            fats = (fat_per_100g * grams) / 100
-            calories_and_macros.append(fats)
+            fat = (fat_per_100g * grams) / 100
             protein = (Protein_per_100g * grams) / 100
-            calories_and_macros.append(protein)
             carbs = (carbohydrates_per_100g * grams) / 100
-            calories_and_macros.append(carbs)
-            return calories
+            
+            #return the dictionary of all information
+            return {
+                'calories': calories,
+                'protein': protein,
+                'fat': fat,
+                'carbs': carbs
+            }
     except (requests.RequestException, IndexError, KeyError) as e:
         print(f"Error fetching calories: {e}")
-    return 0
+    return {
+        'calories':  0,
+        'protein': 0,
+        'fat': 0,
+        'carbs': 0
+    }
 
 # Create your views here
 @login_required
@@ -135,17 +145,31 @@ def nutriment_list(request):
     
     nutriments = Nutriment.objects.filter(user=request.user) # filter the request by only user information
     today_nutriments = nutriments.filter(date=today)
-    daily_totals = nutriments.values('date').annotate(total_calories=Sum('calories')).order_by('-date') # get your food information only by your day 
-    total_calories = sum(n.calories for n in today_nutriments) #sum the calories in today nutriments
+    
+    
+    daily_totals = nutriments.values('date').annotate(
+        total_calories=Sum('calories'),
+        total_protein=Sum('protein'),
+        total_fat=Sum('fat'),
+        total_carbs=Sum('carbs')
+        ).order_by('-date') # get your food information only by your day
+    
+     
+    total_calories = sum(n.calories for n in today_nutriments) #sum of calories the calories in the current day nutriments
+    total_protein = sum(n.protein for n in today_nutriments) #sum of protein  in the current day nutriments
+    total_fat = sum(n.fat for n in today_nutriments) #sum of fat in the current day nutriments
+    total_carbs = sum(n.carbs for n in today_nutriments) #sum of carbs in the current day nutriments
 
-    if request.method == "POST":
+    if request.method == "POST": #request POST
         form = NutrimentForm(request.POST)
         if form.is_valid():
             nutriment = form.save(commit=False)
             nutriment.user = request.user
-            nutriment.calories = fetch_calories(nutriment.name, nutriment.grams)
-            if nutriment.calories is None:
-                nutriment.calories = 0
+            nutriment_info = fetch_calories(nutriment.name, nutriment.grams)
+            nutriment.calories = nutriment_info['calories']
+            nutriment.protein = nutriment_info['protein']
+            nutriment.fat = nutriment_info['fat']
+            nutriment.carbs = nutriment_info['carbs'] 
             nutriment.save()
             return redirect('nutriment_info')
     else:
@@ -154,13 +178,20 @@ def nutriment_list(request):
     context = {
         'daily_totals': daily_totals,
         'nutriments': nutriments,
-        'total_calories': total_calories,
+        'total_caloies': total_calories,
+        'total_protein': total_protein,
+        'total_fat': total_fat,
+        'total_carbs': total_carbs,
         'form': form
     }
-    return render(request, 'users/Nutriment.html', context)
+    return render(request, 'users/nutriment_list.html', context)
 
 
-
+#view for logout function --> redirect to home page 
 def logout_view(request):
     logout(request.user)
     return render(request, 'users/index.html')
+
+def index_dash(request):
+    return render(request, 'charts.html')
+    

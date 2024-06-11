@@ -10,6 +10,9 @@ class Nutriment(models.Model):
     name = models.CharField(max_length=100)
     grams = models.FloatField()
     calories = models.FloatField(default=0)
+    protein = models.FloatField(default=0)
+    fat = models.FloatField(default=0)
+    carbs = models.FloatField(default=0)
     date = models.DateField(default=timezone.now)
     
     def __str__(self):
